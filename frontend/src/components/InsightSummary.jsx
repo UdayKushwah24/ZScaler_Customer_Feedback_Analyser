@@ -27,6 +27,13 @@ function InsightSummary({ insight }) {
             </ul>
           )}
 
+          <h3>Most common themes</h3>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {insight.mostCommonThemes.map(({ theme, count }) => (
+              <li key={theme}>{theme}: <strong>{count}</strong></li>
+            ))}
+          </ul>
+
           <h3>Urgent items ({insight.urgentItems.length})</h3>
           {insight.urgentItems.length === 0 ? (
             <p className="muted">None flagged High urgency.</p>
