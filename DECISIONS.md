@@ -29,11 +29,18 @@ Backend: Express (plain, no framework like Nest — overkill for this scope). Fr
 
 ## Key product decisions
 
-TBD as classifier and frontend land.
+- **Simulated AI is two-tier (canned + rule-based), not random.** Tier 1 exact-matches the assignment's 10 sample comments to hand-authored, PM-quality classifications with a written rationale per item. Tier 2 runs any other text through a deterministic keyword/heuristic classifier. This mirrors how you'd mock a real AI API in tests — fixture responses for known inputs, a fallback for the rest — and means every classification is explainable and reproducible, never hallucinated. Every result is tagged `source: "canned" | "rule-based"` so a reviewer can see which path produced it.
+- **"Pain points" are ranked by urgency-weighted score, not raw negative-sentiment count.** Caught during manual testing: ranking by a plain count of Negative-sentiment items per theme let a single low-stakes complaint (dashboard load time) tie with, and beat, actual blockers (a broken invite email, an SSO requirement blocking a company-wide rollout) because those were phrased neutrally rather than angrily. Fixed by scoring each item's contribution to its theme as `urgencyWeight(High=3/Medium=2/Low=1)`, excluding only Positive-sentiment items — so a calmly-worded blocker still counts as pain. This is a stated, visible assumption (in `insightSummary.js` and here), not a hidden heuristic.
+- **Churn/rollout risk = High urgency + non-positive sentiment.** A simple, explicit, documented definition rather than a vague "sounds bad" judgment — every item flagged as churn risk can be traced back to those two fields.
+- **Insight summary is derived, not generated.** `insightSummary.js` builds the PM-ready summary purely from fields already present on each classified item (theme/sentiment/urgency). There's no separate "write a paragraph" AI step, so nothing in the summary can state something the underlying data doesn't support — directly addressing the assignment's "avoid overclaiming beyond the feedback provided" requirement.
 
 ## Key technical decisions
 
-TBD — filled in as each backend/frontend piece is committed.
+- **Repository pattern in one file** (see "Data model" above) — isolates the mock-Mongo decision so a real DB swap doesn't ripple through the app.
+- **Rule tables are exported, not just used internally.** `ruleBasedClassifier.js` exports its keyword lists via `GET /api/feedback/rules`. The frontend's "how to test" panel renders these live instead of a hand-written description, so the UI can never drift out of sync with the actual logic.
+- **`asyncHandler` middleware wraps every async controller.** Express 4 does not forward a rejected promise from an async handler to the error middleware on its own — without this wrapper, a thrown error would hang the request instead of returning a 500.
+- **Keyword lists must not contain substrings of each other.** Matching uses `.includes()`, so e.g. having both `"report"` and `"reports"` in the same list double-counts a single occurrence and skews theme scoring. Found via a real bug during manual testing (an iPhone crash report was misclassified as "Export & Reporting" instead of "Mobile"); fixed by deduplicating to root forms, and documented as a standing invariant in a comment above the rule tables.
+- **Input validation lives in the controller, not the service layer.** The HTTP boundary (`POST /api/feedback/analyze`) is where untrusted input enters the system, so that's where it's rejected (non-array body, empty comments, per-comment length cap, per-request batch size cap) — the classifier and repository below it can assume clean input.
 
 ## What you intentionally skipped
 
