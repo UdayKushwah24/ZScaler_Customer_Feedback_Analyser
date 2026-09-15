@@ -4,10 +4,15 @@ const asyncHandler = require('../middleware/asyncHandler');
 
 const router = express.Router();
 
+
+
+
 router.post('/analyze', asyncHandler(controller.analyze));
 router.get('/', asyncHandler(controller.list));
 router.get('/summary', asyncHandler(controller.summary));
 router.get('/insight', asyncHandler(controller.insight));
+
+
 router.post('/reset', asyncHandler(controller.reset));
 router.get('/rules', asyncHandler(controller.rules));
 
