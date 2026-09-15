@@ -62,6 +62,12 @@ textarea {
   border: 1px solid #bbb;
   border-radius: 4px;
   resize: vertical;
+  /* Explicit, not inherited: relying on `color-scheme` alone to pick a
+     legible textarea background proved unreliable in testing (rendered
+     black-on-black under a dark OS theme despite `color-scheme: light`
+     on :root), so this is pinned regardless of the visitor's theme. */
+  background: #fff;
+  color: #1a1a1a;
 }
 
 table {
