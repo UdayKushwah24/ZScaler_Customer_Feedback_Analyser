@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getRules, listFeedback } from './api/feedbackApi';
 import FeedbackInput from './components/FeedbackInput';
+import FeedbackTable from './components/FeedbackTable';
 
 // App-level state lives here and gets passed down to feature components as
 // they're added (FeedbackTable, SummaryDashboard, InsightSummary,
@@ -51,13 +52,7 @@ function App() {
         />
       )}
 
-      {!loading && !error && (
-        <section>
-          <p className="muted">
-            {feedback.length} feedback item{feedback.length === 1 ? '' : 's'} currently stored.
-          </p>
-        </section>
-      )}
+      {!loading && !error && <FeedbackTable feedback={feedback} />}
     </div>
   );
 }
