@@ -2,6 +2,8 @@ const repository = require('../repository/feedbackRepository');
 const { analyzeBatch } = require('../ai/analyzeFeedback');
 const { THEME_RULES, POSITIVE_WORDS, NEGATIVE_WORDS, HIGH_URGENCY_WORDS, MEDIUM_URGENCY_WORDS, LOW_URGENCY_WORDS } = require('../ai/ruleBasedClassifier');
 const { SAMPLE_FEEDBACK } = require('../data/sampleFeedback');
+const { buildSummary } = require('../services/dashboard');
+const { buildInsightSummary } = require('../services/insightSummary');
 
 const MAX_COMMENTS_PER_REQUEST = 200;
 const MAX_COMMENT_LENGTH = 2000;
@@ -43,6 +45,18 @@ async function list(req, res) {
   return res.json({ feedback });
 }
 
+// GET /api/feedback/summary
+async function summary(req, res) {
+  const feedback = await repository.findAll();
+  return res.json(buildSummary(feedback));
+}
+
+// GET /api/feedback/insight
+async function insight(req, res) {
+  const feedback = await repository.findAll();
+  return res.json(buildInsightSummary(feedback));
+}
+
 // POST /api/feedback/reset
 async function reset(req, res) {
   await repository.clear();
@@ -68,4 +82,4 @@ async function rules(req, res) {
   });
 }
 
-module.exports = { analyze, list, reset, rules };
+module.exports = { analyze, list, summary, insight, reset, rules };
