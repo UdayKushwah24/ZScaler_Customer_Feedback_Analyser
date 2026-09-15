@@ -1,28 +1,38 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getRules, listFeedback } from './api/feedbackApi';
+import { getInsight, getRules, getSummary, listFeedback } from './api/feedbackApi';
 import FeedbackInput from './components/FeedbackInput';
 import FeedbackTable from './components/FeedbackTable';
+import SummaryDashboard from './components/SummaryDashboard';
+import InsightSummary from './components/InsightSummary';
 
-// App-level state lives here and gets passed down to feature components as
-// they're added (FeedbackTable, SummaryDashboard, InsightSummary,
-// HowToTestPanel). Kept as plain useState — no state library — since this
-// is a single-page tool with one shared dataset and no cross-route state
-// to coordinate.
+// App-level state lives here and gets passed down to feature components
+// (FeedbackTable, SummaryDashboard, InsightSummary, HowToTestPanel). Kept
+// as plain useState — no state library — since this is a single-page tool
+// with one shared dataset and no cross-route state to coordinate.
 function App() {
   const [feedback, setFeedback] = useState([]);
+  const [summary, setSummary] = useState(null);
+  const [insight, setInsight] = useState(null);
   const [rules, setRules] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const refreshFeedback = useCallback(async () => {
-    const data = await listFeedback();
-    setFeedback(data.feedback);
+  // Re-fetches everything derived from the stored feedback. Called after
+  // every analyze/reset so the table, dashboard, and insight summary never
+  // drift out of sync with each other or with the backend's store.
+  const refreshAll = useCallback(async () => {
+    const [feedbackData, summaryData, insightData] = await Promise.all([listFeedback(), getSummary(), getInsight()]);
+    setFeedback(feedbackData.feedback);
+    setSummary(summaryData);
+    setInsight(insightData);
   }, []);
 
   useEffect(() => {
-    Promise.all([listFeedback(), getRules()])
-      .then(([feedbackData, rulesData]) => {
+    Promise.all([listFeedback(), getSummary(), getInsight(), getRules()])
+      .then(([feedbackData, summaryData, insightData, rulesData]) => {
         setFeedback(feedbackData.feedback);
+        setSummary(summaryData);
+        setInsight(insightData);
         setRules(rulesData);
       })
       .catch((err) => setError(err.message))
@@ -47,12 +57,18 @@ function App() {
         <FeedbackInput
           sampleFeedback={rules.sampleFeedback}
           hasStoredFeedback={feedback.length > 0}
-          onSubmitted={refreshFeedback}
-          onReset={refreshFeedback}
+          onSubmitted={refreshAll}
+          onReset={refreshAll}
         />
       )}
 
-      {!loading && !error && <FeedbackTable feedback={feedback} />}
+      {!loading && !error && (
+        <>
+          <FeedbackTable feedback={feedback} />
+          <SummaryDashboard summary={summary} />
+          <InsightSummary insight={insight} />
+        </>
+      )}
     </div>
   );
 }
