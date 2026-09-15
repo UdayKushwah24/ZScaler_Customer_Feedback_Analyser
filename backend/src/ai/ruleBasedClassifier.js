@@ -28,7 +28,7 @@ const THEME_RULES = [
 ];
 
 const POSITIVE_WORDS = ['love', 'great', 'helpful', 'easy', 'powerful', 'amazing', 'excellent', 'good', 'nice', 'appreciate', 'saves', 'thank', 'works well'];
-const NEGATIVE_WORDS = ['cannot', "can't", 'broken', 'breaks', 'confusing', 'slow', 'complex', 'difficult', 'bug', 'issue', 'problem', 'frustrat', 'annoying', 'bad', 'poor', 'fail', 'error', 'never arrives', 'never arrived', 'too long', 'expensive'];
+const NEGATIVE_WORDS = ['cannot', "can't", 'broken', 'breaks', 'crash', 'confusing', 'slow', 'complex', 'difficult', 'bug', 'issue', 'problem', 'frustrat', 'annoying', 'bad', 'poor', 'fail', 'error', 'never arrives', 'never arrived', 'too long', 'expensive'];
 
 const HIGH_URGENCY_WORDS = ['cannot', "can't", 'block', 'broken', 'breaks', 'crash', 'fail', 'urgent', 'critical', 'down', 'outage', 'data loss', 'churn', 'never arrives', 'never arrived', 'before we can', 'rollout'];
 const MEDIUM_URGENCY_WORDS = ['confusing', 'slow', 'difficult', 'complex', 'unclear', 'delay', 'complicated'];

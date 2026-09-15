@@ -4,6 +4,7 @@ import FeedbackInput from './components/FeedbackInput';
 import FeedbackTable from './components/FeedbackTable';
 import SummaryDashboard from './components/SummaryDashboard';
 import InsightSummary from './components/InsightSummary';
+import HowToTestPanel from './components/HowToTestPanel';
 
 // App-level state lives here and gets passed down to feature components
 // (FeedbackTable, SummaryDashboard, InsightSummary, HowToTestPanel). Kept
@@ -52,6 +53,8 @@ function App() {
       {error && <div className="error-banner">Could not reach the backend: {error}. Is it running on port 4000?</div>}
 
       {loading && !error && <p className="muted">Loading…</p>}
+
+      {!loading && !error && rules && <HowToTestPanel rules={rules} />}
 
       {!loading && !error && rules && (
         <FeedbackInput
